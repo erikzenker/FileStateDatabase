@@ -1,13 +1,18 @@
 #include <FileStateDatabase.h>
 #include <iostream>
 
-int main(){
+int main(int argc, char **argv){
 
-  std::string dir("/home/erik/Documents/knowledgebase/");
-  FileStateDatabase fileStateDatabase("my_filestate_database");
+  if(argc <= 1){
+    std::cout << "Usage: ./a.out /dir/to/generate/filestates" << std::endl;
+    return 1;
+  }
+
+  boost::filesystem::path dir(argv[1]);
+  FileStateDatabase fileStateDatabase("my_filestate_database", dir);
 
   // Get updates since last getUpdates
-  std::vector<std::pair<FileState, ModState> > updates = fileStateDatabase.getUpdates(dir);
+  std::vector<std::pair<FileState, ModState> > updates = fileStateDatabase.getUpdates();
 
   for(auto update = updates.begin(); update != updates.end(); ++update){
     FileState fs = update->first;

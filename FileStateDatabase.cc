@@ -5,7 +5,9 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 
-FileStateDatabase::FileStateDatabase(std::string dataBaseName){
+FileStateDatabase::FileStateDatabase(std::string dataBaseName, boost::filesystem::path rootPath) 
+  : mRootPath(rootPath){
+  
   int error = sqlite3_open(dataBaseName.c_str(), &mDataBase);
   executeQuery("CREATE TABLE statedb (path varchar(512), modtime int, inode int, is_dir boolean);", FileStateDatabase::printQueryResult, 0);
   if(error){
@@ -145,13 +147,11 @@ bool FileStateDatabase::resetdb(){
  *        The changes have to be iterated and executed through insertFileState, 
  *        updateFileState and deleteFileState.
  *
- * @param rootDirectory is the directory which will be compared with the filestate Database
- *
  * @return a pair of FileState and ModState(new, update, delete)
  *
  **/
-std::vector<std::pair<FileState, ModState> > FileStateDatabase::getUpdates(std::string rootDirectory){
-  boost::filesystem::recursive_directory_iterator it(rootDirectory, boost::filesystem::symlink_option::recurse);
+std::vector<std::pair<FileState, ModState> > FileStateDatabase::getUpdates(){
+  boost::filesystem::recursive_directory_iterator it(mRootPath, boost::filesystem::symlink_option::recurse);
   boost::filesystem::recursive_directory_iterator end;
 
   // Modification state of changed files since last sync
