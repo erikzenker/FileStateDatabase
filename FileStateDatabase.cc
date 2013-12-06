@@ -71,9 +71,9 @@ bool FileStateDatabase::executeQuery(const std::string query, int (*callback)(vo
 
 FileState FileStateDatabase::createFileState(boost::filesystem::path path){
   FileState fileState;
-
   struct stat buffer;
-  if(boost::filesystem::exists(fileState.path)){
+  if(boost::filesystem::exists(path)){
+    fileState.path    = path;
     fileState.modtime = boost::filesystem::last_write_time(path);
     fileState.inode   = lstat(path.c_str(), &buffer)? 0 : buffer.st_ino;
     fileState.is_dir  = boost::filesystem::is_directory(path);
@@ -207,8 +207,10 @@ std::vector<std::pair<FileState, ModState> > FileStateDatabase::updates(){
   
   while(it != end){
     std::string currentPath = ((boost::filesystem::path)*it).string();
-    FileState fileState = createFileState(*it);
-
+    FileState fileState = createFileState(currentPath);
+    std::cout << currentPath << std::endl;
+    std::cout << fileState.path.string() << std::endl;
+    
     if(boost::filesystem::is_regular_file(*it)){
 	
       auto cacheIt = updates.find(fileState.path.string());
