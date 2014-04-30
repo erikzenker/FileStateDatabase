@@ -9,10 +9,10 @@ A C++ class, that helps you to save the state of files in a sql database.
 ## Build ##
    + include FileStateDatabase.h
    + compile with -lsqlite3 -lboost_system -lboost_filesystem -std=c++11 
-   + example: g++ main.cc FileStateDatabase.cc -I . -lsqlite3 -lboost_system -lboost_filesystem -std=c++11
+   + example: clang++ main.cc -I . -lsqlite3 -lboost_system -lboost_filesystem -std=c++11
 
 ## Example ##
-Small example explains how to use FileStateDatabase.
+Small example explains how to use FileStateDatabase. (see main.cc)
 ```c++
 
 #include <FileStateDatabase.h>
@@ -31,13 +31,13 @@ int main(int argc, char **argv){
   // Get updates since last getUpdates
   std::vector<std::pair<FileState, ModState> > updates = fileStateDatabase.getUpdates();
 
-  for(auto update = updates.begin(); update != updates.end(); ++update){
-    FileState fs = update->first;
-    ModState ms  = update->second;
+  for(auto update: updates){
+    FileState fs = update.first;
+    ModState ms  = update.second;
     std::cout << "Update: " << fs.path << " " << fs.modtime << " " << FileStateDatabase::modStateToString(ms) << std::endl;
 
     // Propagate modstate into database
-    fileStateDatabase.propagateUpdate(*update);
+    fileStateDatabase.propagateUpdate(update);
   }
 
   return 0;
